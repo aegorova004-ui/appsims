@@ -1,0 +1,915 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Success Notification Widget</title>
+  <style>
+    :root {
+      --bg: #0a1116;
+      --bg-soft: #101920;
+      --shell: rgba(11, 19, 24, 0.92);
+      --panel: rgba(16, 25, 32, 0.92);
+      --panel-soft: rgba(22, 32, 40, 0.78);
+      --line: rgba(255, 255, 255, 0.08);
+      --line-strong: rgba(255, 255, 255, 0.12);
+      --text: #f4f7f9;
+      --text-soft: rgba(223, 230, 235, 0.62);
+      --text-muted: rgba(183, 194, 202, 0.52);
+      --surface: rgba(248, 250, 251, 0.95);
+      --surface-line: rgba(20, 33, 41, 0.08);
+      --surface-text: #15212a;
+      --surface-soft: #60717d;
+      --brand: #d61f26;
+      --brand-strong: #b2161b;
+      --success: #2eb26b;
+      --success-strong: #167f49;
+      --shadow-shell: 0 36px 80px rgba(2, 8, 12, 0.42);
+      --shadow-panel: 0 18px 40px rgba(3, 9, 13, 0.24);
+      --shadow-toast: 0 24px 50px rgba(3, 14, 18, 0.24);
+      --radius-2xl: 32px;
+      --radius-xl: 24px;
+      --radius-lg: 20px;
+      --radius-md: 16px;
+      --radius-sm: 14px;
+      --ease: cubic-bezier(.2, .8, .2, 1);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      margin: 0;
+      min-height: 100%;
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      color-scheme: dark;
+      background:
+        radial-gradient(circle at top right, rgba(214, 31, 38, 0.12), transparent 22%),
+        linear-gradient(180deg, #0b1217 0%, #091015 100%);
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      overflow: hidden;
+    }
+
+    .frame {
+      position: relative;
+      width: min(1320px, 100%);
+      min-height: min(840px, calc(100vh - 48px));
+      padding: 28px;
+      border-radius: 36px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01)),
+        rgba(7, 13, 17, 0.88);
+      box-shadow: var(--shadow-shell);
+      overflow: hidden;
+    }
+
+    .frame::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 82% 12%, rgba(214, 31, 38, 0.1), transparent 18%),
+        linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 36%);
+      pointer-events: none;
+    }
+
+    .workspace {
+      position: relative;
+      min-height: 100%;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.025), rgba(255, 255, 255, 0.01)),
+        var(--shell);
+      overflow: hidden;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      padding: 18px 22px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.018);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 40px;
+      height: 40px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #ef3038, #99161b);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28);
+      position: relative;
+    }
+
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      transform: rotate(-35deg);
+    }
+
+    .brand-mark::before {
+      width: 18px;
+      height: 4px;
+      top: 11px;
+      left: 11px;
+    }
+
+    .brand-mark::after {
+      width: 12px;
+      height: 4px;
+      top: 22px;
+      left: 16px;
+    }
+
+    .brand-copy small,
+    .task-meta,
+    .toast-tag {
+      display: block;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+
+    .brand-copy small {
+      color: var(--text-muted);
+      margin-bottom: 4px;
+    }
+
+    .brand-copy strong {
+      display: block;
+      font-size: 0.98rem;
+      color: var(--text);
+    }
+
+    .topbar-tools {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .search,
+    .profile {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.035);
+      color: var(--text-soft);
+    }
+
+    .search {
+      min-width: 300px;
+      padding: 11px 15px;
+    }
+
+    .profile {
+      padding: 8px 10px 8px 14px;
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(145deg, #ff7673, #cb1d24);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34);
+    }
+
+    .content {
+      position: relative;
+      padding: 26px 22px 22px;
+    }
+
+    .content-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .content-head h1 {
+      margin: 0 0 8px;
+      color: var(--text);
+      font-size: 1.8rem;
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .content-head p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.96rem;
+      line-height: 1.6;
+    }
+
+    .head-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ghost-button,
+    .brand-button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.24s var(--ease), background 0.24s var(--ease), box-shadow 0.24s var(--ease);
+    }
+
+    .ghost-button {
+      color: var(--text);
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .brand-button {
+      color: #fff;
+      background: linear-gradient(135deg, #e82c34, #b4171d);
+      box-shadow: 0 14px 28px rgba(214, 31, 38, 0.2);
+    }
+
+    .ghost-button:hover,
+    .ghost-button:focus-visible,
+    .brand-button:hover,
+    .brand-button:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .ghost-button:hover,
+    .ghost-button:focus-visible {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .brand-button:hover,
+    .brand-button:focus-visible {
+      background: linear-gradient(135deg, #fa3941, #c91a21);
+      box-shadow: 0 16px 30px rgba(214, 31, 38, 0.24);
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: 1.4fr 0.86fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .list-panel,
+    .side-panel {
+      border-radius: var(--radius-xl);
+      border: 1px solid var(--line);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.028), rgba(255, 255, 255, 0.012)),
+        var(--panel);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .list-panel {
+      padding: 18px;
+    }
+
+    .panel-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .panel-top strong {
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .panel-top span {
+      color: var(--text-muted);
+      font-size: 0.86rem;
+    }
+
+    .filters {
+      display: flex;
+      gap: 10px;
+    }
+
+    .chip {
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--text-soft);
+      font-size: 0.84rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .chip.active {
+      background: rgba(214, 31, 38, 0.13);
+      border-color: rgba(214, 31, 38, 0.2);
+      color: #f7d9db;
+    }
+
+    .task-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .task-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: rgba(255, 255, 255, 0.028);
+    }
+
+    .task-row.active {
+      background:
+        linear-gradient(180deg, rgba(214, 31, 38, 0.06), rgba(255, 255, 255, 0.03)),
+        rgba(255, 255, 255, 0.028);
+      border-color: rgba(214, 31, 38, 0.12);
+    }
+
+    .task-bullet {
+      width: 42px;
+      height: 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .task-bullet.success {
+      background: rgba(46, 178, 107, 0.12);
+      color: #7de0a7;
+    }
+
+    .task-main strong {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--text);
+      font-size: 0.98rem;
+    }
+
+    .task-main span {
+      display: block;
+      color: var(--text-soft);
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+
+    .task-status {
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-soft);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    .task-status.success {
+      color: #ddf5e7;
+      background: rgba(46, 178, 107, 0.14);
+    }
+
+    .side-panel {
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.022), rgba(255, 255, 255, 0.008)),
+        rgba(13, 21, 27, 0.92);
+    }
+
+    .summary-card {
+      padding: 16px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .summary-card strong {
+      display: block;
+      margin-bottom: 10px;
+      color: var(--text);
+      font-size: 0.98rem;
+    }
+
+    .summary-card p {
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    .summary-divider {
+      height: 1px;
+      margin: 16px 0;
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .stat-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      color: var(--text-soft);
+      font-size: 0.9rem;
+    }
+
+    .stat-row strong {
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .toast-layer {
+      position: absolute;
+      top: 18px;
+      right: 18px;
+      width: min(404px, calc(100% - 36px));
+      z-index: 5;
+    }
+
+    .toast {
+      position: relative;
+      padding: 18px;
+      border-radius: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(246, 249, 250, 0.92)),
+        rgba(255, 255, 255, 0.88);
+      box-shadow: var(--shadow-toast);
+      backdrop-filter: blur(18px);
+      animation: toast-in 760ms var(--ease) both;
+      transition: opacity 280ms var(--ease), transform 280ms var(--ease), visibility 280ms var(--ease);
+      overflow: hidden;
+    }
+
+    .toast.is-hidden {
+      opacity: 0;
+      transform: translateY(-12px) scale(0.985);
+      visibility: hidden;
+    }
+
+    .toast::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at top right, rgba(46, 178, 107, 0.14), transparent 32%),
+        linear-gradient(135deg, rgba(214, 31, 38, 0.05), transparent 40%);
+      pointer-events: none;
+    }
+
+    .toast::after {
+      content: "";
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 8px;
+      height: 3px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(46, 178, 107, 0.95), rgba(46, 178, 107, 0.24));
+      transform-origin: left center;
+      animation: progress 5.2s linear forwards;
+    }
+
+    .toast-head {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .toast-tag {
+      color: var(--success-strong);
+    }
+
+    .toast-close {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 0;
+      border-radius: 12px;
+      background: rgba(21, 33, 41, 0.05);
+      color: rgba(21, 33, 41, 0.72);
+      cursor: pointer;
+      transition: background 0.24s var(--ease), transform 0.24s var(--ease), color 0.24s var(--ease);
+    }
+
+    .toast-close:hover,
+    .toast-close:focus-visible {
+      background: rgba(21, 33, 41, 0.1);
+      color: rgba(21, 33, 41, 0.95);
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .toast-body {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+    }
+
+    .toast-icon {
+      position: relative;
+      width: 50px;
+      height: 50px;
+      display: grid;
+      place-items: center;
+      border-radius: 16px;
+      background: rgba(46, 178, 107, 0.12);
+      color: var(--success-strong);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
+    }
+
+    .toast-copy h2 {
+      margin: 2px 0 8px;
+      color: var(--surface-text);
+      font-size: 1.12rem;
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    .toast-copy p {
+      margin: 0 0 16px;
+      color: var(--surface-soft);
+      font-size: 0.93rem;
+      line-height: 1.62;
+    }
+
+    .toast-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .toast-cta,
+    .toast-link {
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 14px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform 0.24s var(--ease), background 0.24s var(--ease), box-shadow 0.24s var(--ease), color 0.24s var(--ease);
+    }
+
+    .toast-cta {
+      color: #fff;
+      background: linear-gradient(135deg, #e62b33, #b5171c);
+      box-shadow: 0 12px 24px rgba(214, 31, 38, 0.18);
+    }
+
+    .toast-link {
+      color: rgba(21, 33, 41, 0.74);
+      background: rgba(21, 33, 41, 0.05);
+    }
+
+    .toast-cta:hover,
+    .toast-cta:focus-visible,
+    .toast-link:hover,
+    .toast-link:focus-visible {
+      transform: translateY(-1px);
+      outline: none;
+    }
+
+    .toast-cta:hover,
+    .toast-cta:focus-visible {
+      background: linear-gradient(135deg, #fb3b43, #c71b20);
+    }
+
+    .toast-link:hover,
+    .toast-link:focus-visible {
+      color: rgba(21, 33, 41, 0.95);
+      background: rgba(21, 33, 41, 0.1);
+    }
+
+    .focus-ring:focus-visible {
+      outline: 3px solid rgba(214, 31, 38, 0.24);
+      outline-offset: 3px;
+    }
+
+    @keyframes toast-in {
+      from {
+        opacity: 0;
+        transform: translateY(-16px) scale(0.97);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes progress {
+      from {
+        transform: scaleX(1);
+      }
+      to {
+        transform: scaleX(0);
+      }
+    }
+
+    @media (max-width: 980px) {
+      body {
+        overflow: auto;
+      }
+
+      .frame {
+        min-height: auto;
+      }
+
+      .board {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .frame {
+        padding: 14px;
+        border-radius: 24px;
+      }
+
+      .topbar,
+      .content {
+        padding-left: 16px;
+        padding-right: 16px;
+      }
+
+      .topbar,
+      .content-head {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .topbar-tools,
+      .head-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .search {
+        min-width: 0;
+      }
+
+      .toast-layer {
+        position: relative;
+        top: auto;
+        right: auto;
+        width: 100%;
+        margin-bottom: 16px;
+      }
+
+      .toast-body {
+        grid-template-columns: 1fr;
+      }
+
+      .toast-actions {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .task-row {
+        grid-template-columns: auto 1fr;
+      }
+
+      .task-status {
+        grid-column: 2;
+        justify-self: start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="frame">
+    <section class="workspace">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true"></div>
+          <div class="brand-copy">
+            <small>GlobalDrive × Sharmax inspired</small>
+            <strong>Task workspace</strong>
+          </div>
+        </div>
+        <div class="topbar-tools">
+          <div class="search">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="11" cy="11" r="6.5" stroke="currentColor" stroke-width="1.7"/>
+              <path d="M16 16L20 20" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+            </svg>
+            Поиск задач, проектов и дилеров
+          </div>
+          <div class="profile">
+            <div>
+              <strong style="display:block;font-size:.88rem;color:var(--text);">Анна Соколова</strong>
+              <span style="display:block;font-size:.76rem;color:var(--text-muted);">Operations</span>
+            </div>
+            <div class="avatar" aria-hidden="true"></div>
+          </div>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="toast-layer" aria-live="polite" aria-atomic="true">
+          <article class="toast" id="successToast" role="status">
+            <div class="toast-head">
+              <span class="toast-tag">Success state</span>
+              <button class="toast-close focus-ring" id="toastClose" aria-label="Закрыть уведомление">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                  <path d="M7 7L17 17M17 7L7 17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                </svg>
+              </button>
+            </div>
+
+            <div class="toast-body">
+              <div class="toast-icon" aria-hidden="true">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none">
+                  <path d="M6.5 12.5L10.1 16.1L17.8 8.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div class="toast-copy">
+                <h2>Задача успешно создана</h2>
+                <p>Вы можете перейти к её редактированию или назначить исполнителя.</p>
+                <div class="toast-actions">
+                  <button class="toast-cta focus-ring">Перейти к задаче</button>
+                  <button class="toast-link focus-ring">Позже</button>
+                </div>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <div class="content-head">
+          <div>
+            <h1>Задачи команды</h1>
+            <p>Спокойный продуктовый фон оставляет уведомление главным акцентом, но сохраняет ощущение реального рабочего интерфейса.</p>
+          </div>
+          <div class="head-actions">
+            <button class="ghost-button focus-ring">Фильтры</button>
+            <button class="brand-button focus-ring" id="replayToast">Новая задача</button>
+          </div>
+        </div>
+
+        <section class="board">
+          <div class="list-panel">
+            <div class="panel-top">
+              <div>
+                <strong>Список задач</strong>
+                <span>8 активных элементов</span>
+              </div>
+              <div class="filters">
+                <div class="chip active">Все</div>
+                <div class="chip">Сегодня</div>
+                <div class="chip">Высокий приоритет</div>
+              </div>
+            </div>
+
+            <div class="task-list">
+              <article class="task-row active">
+                <div class="task-bullet success">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6.5 12.5L10.1 16.1L17.8 8.4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div class="task-main">
+                  <small class="task-meta" style="color:#7de0a7;">New task</small>
+                  <strong>Подготовить карточку дилера для весеннего запуска</strong>
+                  <span>Только что создано. Доступно редактирование, назначение исполнителя и постановка сроков.</span>
+                </div>
+                <div class="task-status success">created</div>
+              </article>
+
+              <article class="task-row">
+                <div class="task-bullet">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M8 7H16M8 12H16M8 17H13" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="task-main">
+                  <strong>Согласовать контент для страницы техники</strong>
+                  <span>Маркетинг, дизайн, публикация на этой неделе.</span>
+                </div>
+                <div class="task-status">review</div>
+              </article>
+
+              <article class="task-row">
+                <div class="task-bullet">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M7 12H17M12 7V17" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="task-main">
+                  <strong>Назначить исполнителя на витрину аксессуаров</strong>
+                  <span>Ожидает распределения внутри операционной команды.</span>
+                </div>
+                <div class="task-status">queue</div>
+              </article>
+
+              <article class="task-row">
+                <div class="task-bullet">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                    <path d="M6 8.5H18M6 12.5H14M6 16.5H11" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+                  </svg>
+                </div>
+                <div class="task-main">
+                  <strong>Проверить цены по новой линейке Sharmax</strong>
+                  <span>Финальная сверка перед публикацией в каталоге.</span>
+                </div>
+                <div class="task-status">draft</div>
+              </article>
+            </div>
+          </div>
+
+          <aside class="side-panel">
+            <div class="summary-card">
+              <strong>Фокус рабочего дня</strong>
+              <p>Панель справа оставлена нейтральной и тихой: она подтверждает, что это реальный product screen, но не перетягивает внимание с уведомления.</p>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="stat-row">
+              <span>Создано сегодня</span>
+              <strong>14</strong>
+            </div>
+            <div class="stat-row">
+              <span>Ожидают назначения</span>
+              <strong>3</strong>
+            </div>
+            <div class="stat-row">
+              <span>Закрыто в срок</span>
+              <strong>92%</strong>
+            </div>
+          </aside>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const toast = document.getElementById('successToast');
+    const closeButton = document.getElementById('toastClose');
+    const replayButton = document.getElementById('replayToast');
+    let hideTimer;
+
+    function scheduleToastHide() {
+      clearTimeout(hideTimer);
+      hideTimer = window.setTimeout(() => {
+        toast.classList.add('is-hidden');
+      }, 5200);
+    }
+
+    function showToast() {
+      toast.classList.remove('is-hidden');
+      toast.style.animation = 'none';
+      toast.offsetHeight;
+      toast.style.animation = '';
+      scheduleToastHide();
+    }
+
+    closeButton.addEventListener('click', () => {
+      clearTimeout(hideTimer);
+      toast.classList.add('is-hidden');
+    });
+
+    replayButton.addEventListener('click', showToast);
+
+    toast.addEventListener('mouseenter', () => clearTimeout(hideTimer));
+    toast.addEventListener('mouseleave', scheduleToastHide);
+
+    scheduleToastHide();
+  </script>
+</body>
+</html>
