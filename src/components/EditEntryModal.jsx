@@ -1,12 +1,16 @@
 import { useState } from 'react'
-import { resolveCanonicalCreatorName } from '../lib/wishlist.js'
+import {
+  getCategoriesForType,
+  resolveCanonicalCreatorName,
+} from '../lib/wishlist.js'
 import EntryFields from './EntryFields.jsx'
 
 function EditEntryModal({ labels, options, entry, onCancel, onSave }) {
   const [formData, setFormData] = useState(() => ({
     title: entry.title ?? '',
     creator: entry.creator ?? '',
-    category: entry.category ?? options.categories[0],
+    type: entry.type ?? options.types[0],
+    category: entry.category ?? getCategoriesForType(entry.type ?? options.types[0])[0],
     status: entry.status ?? options.statuses[0],
     link: entry.link ?? '',
     notes: entry.notes ?? '',
@@ -16,6 +20,9 @@ function EditEntryModal({ labels, options, entry, onCancel, onSave }) {
     setFormData((currentData) => ({
       ...currentData,
       [field]: value,
+      ...(field === 'type'
+        ? { category: getCategoriesForType(value)[0] ?? currentData.category }
+        : {}),
     }))
   }
 

@@ -2,6 +2,7 @@ function CollectionCard({
   entry,
   index,
   labels,
+  typeLabels,
   onEdit,
   onDelete,
   onCycleStatus,
@@ -82,6 +83,9 @@ function CollectionCard({
         </div>
 
         <div className="collection-card__badges">
+          <span className="pill pill--type">
+            {typeLabels[entry.type]}
+          </span>
           <span className="pill pill--category">
             {labels.categoryLabels[entry.category]}
           </span>
@@ -92,6 +96,10 @@ function CollectionCard({
       </div>
 
       <dl className="collection-card__meta">
+        <div>
+          <dt>{labels.type}</dt>
+          <dd>{typeLabels[entry.type]}</dd>
+        </div>
         <div>
           <dt>{labels.category}</dt>
           <dd>{labels.categoryLabels[entry.category]}</dd>

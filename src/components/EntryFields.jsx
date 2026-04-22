@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
+  getCategoriesForType,
   getCreatorSuggestions,
   normalizeCreatorName,
 } from '../lib/wishlist.js'
@@ -18,6 +19,7 @@ function EntryFields({ labels, options, formData, onChange }) {
     isCreatorFocused &&
     formData.creator.trim() !== '' &&
     creatorSuggestions.length > 0
+  const categoriesForSelectedType = getCategoriesForType(formData.type)
 
   function handleFieldChange(event) {
     const field = event.target.dataset.field ?? event.target.name
@@ -91,13 +93,28 @@ function EntryFields({ labels, options, formData, onChange }) {
       </label>
 
       <label className="field">
+        <span>{labels.fields.type}</span>
+        <select
+          name="type"
+          value={formData.type}
+          onChange={handleFieldChange}
+        >
+          {options.types.map((type) => (
+            <option key={type} value={type}>
+              {labels.typeLabels[type]}
+            </option>
+          ))}
+        </select>
+      </label>
+
+      <label className="field">
         <span>{labels.fields.category}</span>
         <select
           name="category"
           value={formData.category}
           onChange={handleFieldChange}
         >
-          {options.categories.map((category) => (
+          {categoriesForSelectedType.map((category) => (
             <option key={category} value={category}>
               {labels.categoryLabels[category]}
             </option>

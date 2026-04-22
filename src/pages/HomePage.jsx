@@ -7,10 +7,13 @@ import CollectionSection from '../components/CollectionSection.jsx'
 import ConfirmDialog from '../components/ConfirmDialog.jsx'
 import UndoToast from '../components/UndoToast.jsx'
 import EditEntryModal from '../components/EditEntryModal.jsx'
-import { CATEGORIES, STATUSES } from '../data/constants.js'
+import { STATUSES, TYPES } from '../data/constants.js'
 import { translations } from '../data/translations.js'
 import {
   getCreatorDisplayOptions,
+  getAllCategories,
+  getCategoriesForType,
+  isCategoryAllowedForType,
   matchesSearch,
   sortKeysByLocalizedLabel,
 } from '../lib/wishlist.js'
@@ -29,19 +32,28 @@ function HomePage() {
   const [recentlyDeletedEntry, setRecentlyDeletedEntry] = useState(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [creatorFilter, setCreatorFilter] = useState('all')
+  const [typeFilter, setTypeFilter] = useState('all')
   const [statusFilter, setStatusFilter] = useState('all')
   const [categoryFilter, setCategoryFilter] = useState('all')
   const undoTimeoutRef = useRef(null)
 
   const content = translations[language]
-  const sortedCategories = useMemo(
-    () =>
-      sortKeysByLocalizedLabel(
-        CATEGORIES,
+  const formCategories = useMemo(
+    () => getCategoriesForType(TYPES[0]),
+    [],
+  )
+  const filterCategories = useMemo(
+    () => {
+      const categoryKeys =
+        typeFilter === 'all' ? getAllCategories() : getCategoriesForType(typeFilter)
+
+      return sortKeysByLocalizedLabel(
+        categoryKeys,
         content.categoryLabels,
         language === 'ru' ? 'ru' : 'en',
-      ),
-    [content.categoryLabels, language],
+      )
+    },
+    [content.categoryLabels, language, typeFilter],
   )
   const creatorOptions = useMemo(
     () =>
@@ -117,6 +129,8 @@ function HomePage() {
     return entries.filter((entry) => {
       const matchesCreator =
         creatorFilter === 'all' ? true : entry.creator === creatorFilter
+      const matchesType =
+        typeFilter === 'all' ? true : entry.type === typeFilter
       const matchesStatus =
         statusFilter === 'all' ? true : entry.status === statusFilter
       const matchesCategory =
@@ -124,12 +138,13 @@ function HomePage() {
 
       return (
         matchesCreator &&
+        matchesType &&
         matchesStatus &&
         matchesCategory &&
         matchesSearch(entry, searchQuery)
       )
     })
-  }, [categoryFilter, creatorFilter, entries, searchQuery, statusFilter])
+  }, [categoryFilter, creatorFilter, entries, searchQuery, statusFilter, typeFilter])
 
   const stats = useMemo(() => {
     return {
@@ -260,8 +275,20 @@ function HomePage() {
   function handleResetFilters() {
     setSearchQuery('')
     setCreatorFilter('all')
+    setTypeFilter('all')
     setCategoryFilter('all')
     setStatusFilter('all')
+  }
+
+  function handleTypeFilterChange(nextType) {
+    setTypeFilter(nextType)
+
+    if (
+      categoryFilter !== 'all' &&
+      !isCategoryAllowedForType(nextType, categoryFilter)
+    ) {
+      setCategoryFilter('all')
+    }
   }
 
   function handleEditEntry(entryId) {
@@ -350,6 +377,7 @@ function HomePage() {
   const hasActiveFilters =
     searchQuery.trim() !== '' ||
     creatorFilter !== 'all' ||
+    typeFilter !== 'all' ||
     categoryFilter !== 'all' ||
     statusFilter !== 'all'
 
@@ -369,6 +397,14 @@ function HomePage() {
         key: 'category',
         label: content.collection.toolbar.categoryLabel,
         value: content.categoryLabels[categoryFilter],
+      })
+    }
+
+    if (typeFilter !== 'all') {
+      chips.push({
+        key: 'type',
+        label: content.collection.toolbar.typeLabel,
+        value: content.typeLabels[typeFilter],
       })
     }
 
@@ -396,10 +432,13 @@ function HomePage() {
     content.collection.toolbar.creatorLabel,
     content.collection.toolbar.searchLabel,
     content.collection.toolbar.statusLabel,
+    content.collection.toolbar.typeLabel,
     content.statusLabels,
+    content.typeLabels,
     creatorFilter,
     searchQuery,
     statusFilter,
+    typeFilter,
   ])
 
   return (
@@ -423,9 +462,11 @@ function HomePage() {
             ...content.form,
             categoryLabels: content.categoryLabels,
             statusLabels: content.statusLabels,
+            typeLabels: content.typeLabels,
           }}
           options={{
-            categories: sortedCategories,
+            types: TYPES,
+            categories: formCategories,
             statuses: STATUSES,
             creators: creatorOptions,
             locale: language === 'ru' ? 'ru' : 'en',
@@ -438,21 +479,25 @@ function HomePage() {
           entries={filteredEntries}
           searchValue={searchQuery}
           creatorFilterValue={creatorFilter}
+          typeFilterValue={typeFilter}
           statusFilterValue={statusFilter}
           categoryFilterValue={categoryFilter}
           onSearchChange={setSearchQuery}
           onCreatorFilterChange={setCreatorFilter}
+          onTypeFilterChange={handleTypeFilterChange}
           onStatusFilterChange={setStatusFilter}
           onCategoryFilterChange={setCategoryFilter}
           onResetFilters={handleResetFilters}
           creators={creatorOptions}
-          categories={sortedCategories}
+          types={TYPES}
+          categories={filterCategories}
           statuses={STATUSES}
           onEdit={handleEditEntry}
           onDelete={handleDeleteEntry}
           onCycleStatus={handleCycleStatus}
           hasActiveFilters={hasActiveFilters}
           activeFilterChips={activeFilterChips}
+          typeLabels={content.typeLabels}
         />
       </section>
 
@@ -469,7 +514,8 @@ function HomePage() {
           key={editingEntry.id}
           labels={content.form.editModal}
           options={{
-            categories: sortedCategories,
+            types: TYPES,
+            categories: formCategories,
             statuses: STATUSES,
             creators: creatorOptions,
             locale: language === 'ru' ? 'ru' : 'en',

@@ -58,6 +58,7 @@ async function updateEntry(entryId, formData, options = {}) {
     {
       title: formData.title.trim(),
       creator: canonicalCreatorName,
+      type: formData.type,
       category: formData.category,
       status: formData.status,
       link: formData.link.trim(),
@@ -88,11 +89,5 @@ async function cycleEntryStatus(entryId, entries, statuses, scope = {}) {
   const currentEntry = entries.find((entry) => entry.id === entryId)
   const nextStatus = cycleStatus(currentEntry?.status, statuses)
 
-  return updateEntry(
-    entryId,
-    {
-      status: nextStatus,
-    },
-    scope,
-  )
+  return wishlistRepository.updateEntry(entryId, { status: nextStatus }, scope)
 }

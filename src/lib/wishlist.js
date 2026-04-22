@@ -1,12 +1,65 @@
+import {
+  CATEGORIES_BY_TYPE,
+  CC_CATEGORIES,
+  LEGACY_CATEGORY_MIGRATIONS,
+  TYPES,
+} from '../data/constants.js'
+
 export function normalizeEntry(formData) {
+  const typeCategory = normalizeTypeCategory(formData.type, formData.category)
+
   return {
     title: formData.title.trim(),
     creator: normalizeCreatorName(formData.creator),
-    category: formData.category,
+    type: typeCategory.type,
+    category: typeCategory.category,
     status: formData.status,
     link: formData.link.trim(),
     notes: formData.notes.trim(),
   }
+}
+
+export function normalizeTypeCategory(type, category) {
+  const legacyMigration = LEGACY_CATEGORY_MIGRATIONS[category]
+
+  if (legacyMigration) {
+    return legacyMigration
+  }
+
+  const normalizedType = TYPES.includes(type) ? type : inferTypeFromCategory(category)
+  const categories = getCategoriesForType(normalizedType)
+  const normalizedCategory = categories.includes(category)
+    ? category
+    : categories[0] ?? 'Other'
+
+  return {
+    type: normalizedType,
+    category: normalizedCategory,
+  }
+}
+
+export function inferTypeFromCategory(category) {
+  if (CATEGORIES_BY_TYPE.Mod.includes(category)) {
+    return 'Mod'
+  }
+
+  return 'CC'
+}
+
+export function getCategoriesForType(type) {
+  return CATEGORIES_BY_TYPE[type] ?? CC_CATEGORIES
+}
+
+export function getAllCategories() {
+  return Array.from(new Set([...CATEGORIES_BY_TYPE.CC, ...CATEGORIES_BY_TYPE.Mod]))
+}
+
+export function isCategoryAllowedForType(type, category) {
+  if (type === 'all') {
+    return getAllCategories().includes(category)
+  }
+
+  return getCategoriesForType(type).includes(category)
 }
 
 export function matchesSearch(entry, searchQuery) {

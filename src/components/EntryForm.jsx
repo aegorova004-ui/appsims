@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  getCategoriesForType,
   resolveCanonicalCreatorName,
 } from '../lib/wishlist.js'
 import EntryFields from './EntryFields.jsx'
@@ -7,6 +8,7 @@ import EntryFields from './EntryFields.jsx'
 const INITIAL_FORM = {
   title: '',
   creator: '',
+  type: 'CC',
   category: 'Hair',
   status: 'Wishlist',
   link: '',
@@ -20,6 +22,9 @@ function EntryForm({ labels, options, onSubmit }) {
     setFormData((currentData) => ({
       ...currentData,
       [field]: value,
+      ...(field === 'type'
+        ? { category: getCategoriesForType(value)[0] ?? currentData.category }
+        : {}),
     }))
   }
 
@@ -64,9 +69,12 @@ function EntryForm({ labels, options, onSubmit }) {
 }
 
 function buildInitialFormState(options) {
+  const type = options.types[0]
+
   return {
     ...INITIAL_FORM,
-    category: options.categories[0],
+    type,
+    category: getCategoriesForType(type)[0],
     status: options.statuses[0],
   }
 }

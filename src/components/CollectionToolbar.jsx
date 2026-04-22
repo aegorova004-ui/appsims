@@ -2,14 +2,17 @@ function CollectionToolbar({
   labels,
   searchValue,
   creatorFilterValue,
+  typeFilterValue,
   statusFilterValue,
   categoryFilterValue,
   onSearchChange,
   onCreatorFilterChange,
+  onTypeFilterChange,
   onStatusFilterChange,
   onCategoryFilterChange,
   onResetFilters,
   creators,
+  types,
   categories,
   statuses,
   hasActiveFilters,
@@ -70,6 +73,21 @@ function CollectionToolbar({
             {creators.map((creator) => (
               <option key={creator} value={creator}>
                 {creator}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <label className="field field--toolbar">
+          <span>{labels.typeLabel}</span>
+          <select
+            value={typeFilterValue}
+            onChange={(event) => onTypeFilterChange(event.target.value)}
+          >
+            <option value="all">{labels.allTypes}</option>
+            {types.map((type) => (
+              <option key={type} value={type}>
+                {labels.typeLabels[type]}
               </option>
             ))}
           </select>

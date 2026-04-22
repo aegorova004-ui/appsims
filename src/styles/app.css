@@ -700,6 +700,11 @@
   color: #7d6357;
 }
 
+.pill--type {
+  background: #edf4ec;
+  color: #5d735c;
+}
+
 .pill--status {
   background: #f4ecf8;
   color: #755c88;

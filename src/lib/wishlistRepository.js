@@ -1,4 +1,5 @@
 import { isSupabaseConfigured, supabase } from './supabaseClient.js'
+import { normalizeTypeCategory } from './wishlist.js'
 
 const TABLE_NAME = 'wishlist_entries'
 
@@ -27,11 +28,26 @@ async function createEntry(entry, scope = {}) {
     .select(ENTRY_SELECT_WITH_CREATOR)
     .single()
 
-  if (error) {
+  if (!error) {
+    return mapRowToEntry(data)
+  }
+
+  if (!isMissingTypeColumnError(error)) {
     throw error
   }
 
-  return mapRowToEntry(data)
+  const fallbackPayload = omitType(payload)
+  const { data: fallbackData, error: fallbackError } = await supabase
+    .from(TABLE_NAME)
+    .insert(fallbackPayload)
+    .select(ENTRY_SELECT_FALLBACK)
+    .single()
+
+  if (fallbackError) {
+    throw fallbackError
+  }
+
+  return mapRowToEntry(fallbackData)
 }
 
 async function updateEntry(entryId, changes, scope = {}) {
@@ -46,11 +62,28 @@ async function updateEntry(entryId, changes, scope = {}) {
     .select(ENTRY_SELECT_WITH_CREATOR)
     .single()
 
-  if (error) {
+  if (!error) {
+    return mapRowToEntry(data)
+  }
+
+  if (!isMissingTypeColumnError(error)) {
     throw error
   }
 
-  return mapRowToEntry(data)
+  const fallbackPayload = omitType(payload)
+  const { data: fallbackData, error: fallbackError } = await supabase
+    .from(TABLE_NAME)
+    .update(fallbackPayload)
+    .eq('id', entryId)
+    .eq('user_id', userId)
+    .select(ENTRY_SELECT_FALLBACK)
+    .single()
+
+  if (fallbackError) {
+    throw fallbackError
+  }
+
+  return mapRowToEntry(fallbackData)
 }
 
 async function deleteEntry(entryId, scope = {}) {
@@ -72,7 +105,7 @@ async function restoreEntry(entry, scope = {}) {
 }
 
 const ENTRY_SELECT_WITH_CREATOR =
-  'id, user_id, name, creator, creator_id, category, status, link, notes, created_at, updated_at, creator_rel:creator_id(id, display_name, normalized_name)'
+  'id, user_id, name, creator, creator_id, type, category, status, link, notes, created_at, updated_at, creator_rel:creator_id(id, display_name, normalized_name)'
 
 const ENTRY_SELECT_FALLBACK =
   'id, user_id, name, creator, category, status, link, notes, created_at, updated_at'
@@ -92,13 +125,15 @@ function requireUserId(scope) {
 function mapRowToEntry(row) {
   const creatorDisplayName =
     row.creator_rel?.display_name ?? row.creator ?? ''
+  const typeCategory = normalizeTypeCategory(row.type, row.category)
 
   return {
     id: row.id,
     title: row.name ?? '',
     creator: creatorDisplayName,
     creatorId: row.creator_id ?? row.creator_rel?.id ?? null,
-    category: row.category ?? 'Other',
+    type: typeCategory.type,
+    category: typeCategory.category,
     status: row.status ?? 'Wishlist',
     link: row.link ?? '',
     notes: row.notes ?? '',
@@ -109,13 +144,15 @@ function mapRowToEntry(row) {
 
 function mapEntryToInsertPayload(entry, userId, creator) {
   const timestamp = new Date().toISOString()
+  const typeCategory = normalizeTypeCategory(entry.type, entry.category)
 
   const payload = {
     user_id: userId,
     name: entry.title,
     creator: entry.creator,
     creator_id: creator?.id ?? entry.creatorId ?? null,
-    category: entry.category,
+    type: typeCategory.type,
+    category: typeCategory.category,
     status: entry.status,
     link: entry.link,
     notes: entry.notes,
@@ -134,6 +171,11 @@ function mapEntryToUpdatePayload(changes, creator) {
   const payload = {
     updated_at: new Date().toISOString(),
   }
+  const hasTypeOrCategory =
+    Object.hasOwn(changes, 'type') || Object.hasOwn(changes, 'category')
+  const typeCategory = hasTypeOrCategory
+    ? normalizeTypeCategory(changes.type, changes.category)
+    : null
 
   if (Object.hasOwn(changes, 'title')) {
     payload.name = changes.title
@@ -145,7 +187,11 @@ function mapEntryToUpdatePayload(changes, creator) {
   }
 
   if (Object.hasOwn(changes, 'category')) {
-    payload.category = changes.category
+    payload.category = typeCategory.category
+  }
+
+  if (Object.hasOwn(changes, 'type')) {
+    payload.type = typeCategory.type
   }
 
   if (Object.hasOwn(changes, 'status')) {
@@ -189,4 +235,28 @@ async function loadEntryRows(userId) {
 
 function isPersistedEntryId(id) {
   return typeof id === 'string' && !id.startsWith('entry-')
+}
+
+function omitType(payload) {
+  const payloadWithoutType = { ...payload }
+  delete payloadWithoutType.type
+  return payloadWithoutType
+}
+
+function isMissingTypeColumnError(error) {
+  const message = [
+    error?.message,
+    error?.details,
+    error?.hint,
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  return (
+    error?.code === 'PGRST204' ||
+    error?.code === '42703' ||
+    message.includes('type') && message.includes('column') ||
+    message.includes('schema cache') && message.includes('type')
+  )
 }

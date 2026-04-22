@@ -82,6 +82,7 @@ export const translations = {
       fields: {
         title: 'Title',
         creator: 'Creator',
+        type: 'Type',
         category: 'Category',
         status: 'Status',
         link: 'Link',
@@ -121,16 +122,20 @@ export const translations = {
         clearSearch: 'Clear search',
         creatorLabel: 'Creator',
         allCreators: 'All creators',
+        typeLabel: 'Type',
+        allTypes: 'All types',
         categoryLabel: 'Category',
         allCategories: 'All categories',
         statusLabel: 'Status',
         allStatuses: 'All statuses',
         reset: 'Reset filters',
         categoryLabels: {},
+        typeLabels: {},
         statusLabels: {},
       },
       card: {
         creator: 'Creator',
+        type: 'Type',
         category: 'Category',
         notes: 'Notes',
         emptyNotes: 'No notes yet.',
@@ -162,12 +167,20 @@ export const translations = {
       Accessories: 'Accessories',
       Furniture: 'Furniture',
       'Build/Buy': 'Build/Buy',
-      'Script Mod': 'Script Mod',
-      'Gameplay Mod': 'Gameplay Mod',
+      Gameplay: 'Gameplay',
+      Script: 'Script',
+      Tuning: 'Tuning',
+      UI: 'UI',
+      Overrides: 'Overrides',
+      Utility: 'Utility',
       'Default Replacement': 'Default Replacement',
       Presets: 'Presets',
       'Loading Screen': 'Loading Screen',
       Other: 'Other',
+    },
+    typeLabels: {
+      CC: 'CC',
+      Mod: 'Mod',
     },
     statusLabels: {
       Wishlist: 'Wishlist',
@@ -262,6 +275,7 @@ export const translations = {
       fields: {
         title: 'Название',
         creator: 'Креатор',
+        type: 'Тип',
         category: 'Категория',
         status: 'Статус',
         link: 'Ссылка',
@@ -301,16 +315,20 @@ export const translations = {
         clearSearch: 'Очистить поиск',
         creatorLabel: 'Креатор',
         allCreators: 'Все креаторы',
+        typeLabel: 'Тип',
+        allTypes: 'Все типы',
         categoryLabel: 'Категория',
         allCategories: 'Все категории',
         statusLabel: 'Статус',
         allStatuses: 'Все статусы',
         reset: 'Сбросить фильтры',
         categoryLabels: {},
+        typeLabels: {},
         statusLabels: {},
       },
       card: {
         creator: 'Креатор',
+        type: 'Тип',
         category: 'Категория',
         notes: 'Заметки',
         emptyNotes: 'Заметок пока нет.',
@@ -342,12 +360,20 @@ export const translations = {
       Accessories: 'Аксессуары',
       Furniture: 'Мебель',
       'Build/Buy': 'Стройка/Покупки',
-      'Script Mod': 'Скриптовый мод',
-      'Gameplay Mod': 'Геймплейный мод',
+      Gameplay: 'Геймплей',
+      Script: 'Скрипт',
+      Tuning: 'Тюнинг',
+      UI: 'UI',
+      Overrides: 'Оверрайды',
+      Utility: 'Утилиты',
       'Default Replacement': 'Замена по умолчанию',
       Presets: 'Пресеты',
       'Loading Screen': 'Экран загрузки',
       Other: 'Другое',
+    },
+    typeLabels: {
+      CC: 'CC',
+      Mod: 'Мод',
     },
     statusLabels: {
       Wishlist: 'Вишлист',
@@ -361,12 +387,14 @@ export const translations = {
 
 translations.en.collection.toolbar.statusLabels = translations.en.statusLabels
 translations.en.collection.toolbar.categoryLabels = translations.en.categoryLabels
+translations.en.collection.toolbar.typeLabels = translations.en.typeLabels
 translations.en.collection.card.statusLabels = translations.en.statusLabels
 translations.en.collection.card.categoryLabels = translations.en.categoryLabels
 translations.en.form.editModal.fields = translations.en.form.fields
 translations.en.form.editModal.placeholders = translations.en.form.placeholders
 translations.en.form.editModal.categoryLabels = translations.en.categoryLabels
 translations.en.form.editModal.statusLabels = translations.en.statusLabels
+translations.en.form.editModal.typeLabels = translations.en.typeLabels
 translations.en.auth.backToLanding = 'Back to landing'
 translations.en.auth.backToLandingAria = 'Back to landing'
 translations.en.landing = {
@@ -466,12 +494,14 @@ translations.en.landing = {
 }
 translations.ru.collection.toolbar.statusLabels = translations.ru.statusLabels
 translations.ru.collection.toolbar.categoryLabels = translations.ru.categoryLabels
+translations.ru.collection.toolbar.typeLabels = translations.ru.typeLabels
 translations.ru.collection.card.statusLabels = translations.ru.statusLabels
 translations.ru.collection.card.categoryLabels = translations.ru.categoryLabels
 translations.ru.form.editModal.fields = translations.ru.form.fields
 translations.ru.form.editModal.placeholders = translations.ru.form.placeholders
 translations.ru.form.editModal.categoryLabels = translations.ru.categoryLabels
 translations.ru.form.editModal.statusLabels = translations.ru.statusLabels
+translations.ru.form.editModal.typeLabels = translations.ru.typeLabels
 
 translations.en.auth.backToLanding = 'Back to landing'
 translations.en.auth.backToLandingAria = 'Back to landing'

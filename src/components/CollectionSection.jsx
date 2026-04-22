@@ -7,14 +7,17 @@ function CollectionSection({
   entries,
   searchValue,
   creatorFilterValue,
+  typeFilterValue,
   statusFilterValue,
   categoryFilterValue,
   onSearchChange,
   onCreatorFilterChange,
+  onTypeFilterChange,
   onStatusFilterChange,
   onCategoryFilterChange,
   onResetFilters,
   creators,
+  types,
   categories,
   statuses,
   onEdit,
@@ -22,10 +25,12 @@ function CollectionSection({
   onCycleStatus,
   hasActiveFilters,
   activeFilterChips,
+  typeLabels,
 }) {
   const filterMotionKey = [
     searchValue,
     creatorFilterValue,
+    typeFilterValue,
     categoryFilterValue,
     statusFilterValue,
     entries.length,
@@ -46,14 +51,17 @@ function CollectionSection({
         labels={labels.toolbar}
         searchValue={searchValue}
         creatorFilterValue={creatorFilterValue}
+        typeFilterValue={typeFilterValue}
         statusFilterValue={statusFilterValue}
         categoryFilterValue={categoryFilterValue}
         onSearchChange={onSearchChange}
         onCreatorFilterChange={onCreatorFilterChange}
+        onTypeFilterChange={onTypeFilterChange}
         onStatusFilterChange={onStatusFilterChange}
         onCategoryFilterChange={onCategoryFilterChange}
         onResetFilters={onResetFilters}
         creators={creators}
+        types={types}
         categories={categories}
         statuses={statuses}
         hasActiveFilters={hasActiveFilters}
@@ -69,6 +77,7 @@ function CollectionSection({
               entry={entry}
               index={index}
               labels={labels.card}
+              typeLabels={typeLabels}
               onEdit={onEdit}
               onDelete={onDelete}
               onCycleStatus={onCycleStatus}
