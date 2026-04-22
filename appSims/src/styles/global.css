@@ -1,0 +1,53 @@
+:root {
+  font-family: Georgia, 'Times New Roman', serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #463539;
+  background-color: #f6efe7;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  --page-bg: #f6efe7;
+  --surface-primary: #fffaf6;
+  --surface-accent: #f8f2fb;
+  --surface-sage: #f1f6ef;
+  --surface-rose: #fdf0f3;
+  --surface-peach: #fff3ea;
+  --border-soft: #ead9ce;
+  --border-muted: #e5d7df;
+  --text-primary: #4d3a3f;
+  --text-secondary: #7e686e;
+  --text-muted: #9a8489;
+  --shadow-soft: 0 12px 24px rgba(128, 98, 87, 0.06);
+  --shadow-card: 0 8px 16px rgba(124, 93, 87, 0.045);
+  --radius-xl: 28px;
+  --radius-lg: 22px;
+}
+
+body {
+  min-width: 320px;
+  color: var(--text-primary);
+  background:
+    radial-gradient(circle at top left, rgba(240, 211, 203, 0.65), transparent 28%),
+    radial-gradient(circle at top right, rgba(227, 221, 245, 0.58), transparent 24%),
+    linear-gradient(180deg, var(--page-bg) 0%, #f8f3ee 100%);
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+#root {
+  min-height: 100vh;
+}
