@@ -17,6 +17,7 @@ const INITIAL_FORM = {
 
 function EntryForm({ labels, options, onSubmit }) {
   const [formData, setFormData] = useState(() => buildInitialFormState(options))
+  const redesignAssetVersion = '20260422-2314'
 
   function handleFieldChange(field, value) {
     setFormData((currentData) => ({
@@ -43,7 +44,14 @@ function EntryForm({ labels, options, onSubmit }) {
   }
 
   return (
-    <section className="panel-card">
+    <section className="panel-card panel-card--entry">
+      <img
+        className="panel-card__leaf-accent"
+        src={`/assets/redesign/accent-leaf.png?v=${redesignAssetVersion}`}
+        alt=""
+        aria-hidden="true"
+      />
+
       <div className="panel-card__header">
         <p className="panel-card__eyebrow">{labels.eyebrow}</p>
         <h2>{labels.title}</h2>

@@ -10,18 +10,20 @@
   -moz-osx-font-smoothing: grayscale;
 
   --page-bg: #f6efe7;
-  --surface-primary: #fffaf6;
-  --surface-accent: #f8f2fb;
-  --surface-sage: #f1f6ef;
-  --surface-rose: #fdf0f3;
-  --surface-peach: #fff3ea;
-  --border-soft: #ead9ce;
+  --surface-primary: rgba(255, 250, 244, 0.76);
+  --surface-accent: rgba(248, 242, 251, 0.72);
+  --surface-sage: rgba(241, 248, 235, 0.72);
+  --surface-rose: rgba(253, 239, 242, 0.72);
+  --surface-peach: rgba(255, 243, 232, 0.72);
+  --border-soft: rgba(255, 255, 255, 0.58);
   --border-muted: #e5d7df;
   --text-primary: #4d3a3f;
   --text-secondary: #7e686e;
   --text-muted: #9a8489;
-  --shadow-soft: 0 12px 24px rgba(128, 98, 87, 0.06);
+  --shadow-soft: 0 18px 48px rgba(86, 61, 46, 0.12);
   --shadow-card: 0 8px 16px rgba(124, 93, 87, 0.045);
+  --glass-border: rgba(255, 255, 255, 0.62);
+  --glass-highlight: rgba(255, 255, 255, 0.48);
   --radius-xl: 28px;
   --radius-lg: 22px;
 }
@@ -30,9 +32,10 @@ body {
   min-width: 320px;
   color: var(--text-primary);
   background:
-    radial-gradient(circle at top left, rgba(240, 211, 203, 0.65), transparent 28%),
-    radial-gradient(circle at top right, rgba(227, 221, 245, 0.58), transparent 24%),
-    linear-gradient(180deg, var(--page-bg) 0%, #f8f3ee 100%);
+    radial-gradient(circle at 8% 6%, rgba(246, 219, 199, 0.72), transparent 26%),
+    radial-gradient(circle at 92% 8%, rgba(222, 215, 189, 0.58), transparent 25%),
+    radial-gradient(circle at 82% 58%, rgba(185, 207, 166, 0.24), transparent 28%),
+    linear-gradient(135deg, #ead8c5 0%, #f8eee3 42%, #e6d8c9 100%);
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 

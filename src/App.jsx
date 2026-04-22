@@ -49,10 +49,11 @@ function App() {
   }
 
   return (
-    <>
-      <AuthStatusBar onSignedOut={() => setPublicView('landing')} />
-      <HomePage />
-    </>
+    <HomePage
+      accountSlot={
+        <AuthStatusBar onSignedOut={() => setPublicView('landing')} />
+      }
+    />
   )
 }
 

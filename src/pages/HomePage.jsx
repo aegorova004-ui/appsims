@@ -22,7 +22,7 @@ import { wishlistService } from '../lib/wishlistService.js'
 import useLanguage from '../hooks/useLanguage.js'
 import useAuth from '../hooks/useAuth.js'
 
-function HomePage() {
+function HomePage({ accountSlot = null }) {
   const { language, toggleLanguage } = useLanguage()
   const { user } = useAuth()
   const [entries, setEntries] = useState([])
@@ -443,18 +443,21 @@ function HomePage() {
 
   return (
     <MainLayout>
-      <PageHero
-        labels={content.hero}
-        currentLanguage={language}
-        onToggleLanguage={toggleLanguage}
-      />
+      <section className="dashboard-hero-stack">
+        <PageHero
+          labels={content.hero}
+          currentLanguage={language}
+          onToggleLanguage={toggleLanguage}
+          accountSlot={accountSlot}
+        />
 
-      <StatsGrid
-        stats={stats}
-        labels={content.stats}
-        activeStatus={statusFilter}
-        onStatClick={handleStatFilter}
-      />
+        <StatsGrid
+          stats={stats}
+          labels={content.stats}
+          activeStatus={statusFilter}
+          onStatClick={handleStatFilter}
+        />
+      </section>
 
       <section className="dashboard-grid">
         <EntryForm

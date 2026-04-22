@@ -1,9 +1,35 @@
 function StatsGrid({ stats, labels, activeStatus, onStatClick }) {
+  const assetVersion = '20260422-2314'
+  const assetPath = (fileName) => `/assets/redesign/${fileName}?v=${assetVersion}`
   const items = [
-    { key: 'total', label: labels.total, tone: 'peach', status: 'all' },
-    { key: 'wishlist', label: labels.wishlist, tone: 'lavender', status: 'Wishlist' },
-    { key: 'installed', label: labels.installed, tone: 'sage', status: 'Installed' },
-    { key: 'broken', label: labels.broken, tone: 'rose', status: 'Broken' },
+    {
+      key: 'total',
+      label: labels.total,
+      tone: 'peach',
+      status: 'all',
+      icon: assetPath('icon-total.png'),
+    },
+    {
+      key: 'wishlist',
+      label: labels.wishlist,
+      tone: 'lavender',
+      status: 'Wishlist',
+      icon: assetPath('icon-wishlist.png'),
+    },
+    {
+      key: 'installed',
+      label: labels.installed,
+      tone: 'sage',
+      status: 'Installed',
+      icon: assetPath('icon-installed.png'),
+    },
+    {
+      key: 'broken',
+      label: labels.broken,
+      tone: 'rose',
+      status: 'Broken',
+      icon: assetPath('icon-broken.png'),
+    },
   ]
 
   return (
@@ -24,8 +50,16 @@ function StatsGrid({ stats, labels, activeStatus, onStatClick }) {
             item.status === activeStatus
           }
         >
-          <p className="stat-card__label">{item.label}</p>
-          <strong className="stat-card__value">{stats[item.key]}</strong>
+          <span className="stat-card__icon" aria-hidden="true">
+            <img src={item.icon} alt="" />
+          </span>
+          <span className="stat-card__content">
+            <p className="stat-card__label">{item.label}</p>
+            <strong className="stat-card__value">{stats[item.key]}</strong>
+          </span>
+          <span className="stat-card__sparkle" aria-hidden="true">
+            <img src={assetPath('accent-sparkle.png')} alt="" />
+          </span>
         </button>
       ))}
     </section>
